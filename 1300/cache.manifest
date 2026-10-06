@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# v13 - startup, AppCache and telemetry reliability 20261003
+# v14 - isolated retry budgets and runner cleanup 20261005
 
 CACHE:
 index.html
