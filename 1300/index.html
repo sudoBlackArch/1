@@ -305,6 +305,14 @@
 
     var ac = window.applicationCache;
     if (!ac || !document.documentElement.hasAttribute("manifest")) {
+        if (bug === "poops") {
+            // Poops must only run from the offline cache: an uncached run
+            // fetches payload/kpatch over the network right before a
+            // timing-sensitive race. Fail closed like upstream instead.
+            setCache("cache required — clear browser data and reopen the host");
+            setState("CACHE UNAVAILABLE — clear browser data and reopen the host", "bad");
+            return;
+        }
         setCache("application cache unavailable");
         go();
         return;
@@ -333,6 +341,12 @@
         if (!finishCache()) return;
         sessionRemove(cacheReloadKey);
         setCache("cache unavailable");
+        if (bug === "poops") {
+            // No online fallback for poops: running uncached adds network
+            // jitter to the triple-free race. Upstream stops here too.
+            setState("CACHE FAILED — clear browser data and reopen the host", "bad");
+            return;
+        }
         waitForTap("CACHE FAILED — press X or tap to run online", go);
     }, false);
     ac.addEventListener("obsolete", function () {
@@ -354,6 +368,10 @@
         cacheWatchdog = setTimeout(function () {
             if (!finishCache()) return;
             setCache("cache check timed out");
+            if (bug === "poops") {
+                setState("CACHE TIMEOUT — clear browser data and reopen the host", "bad");
+                return;
+            }
             waitForTap("CACHE TIMEOUT — press X or tap to run online", go);
         }, 60000);
     } else {

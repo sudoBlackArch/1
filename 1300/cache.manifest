@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# v14 - isolated retry budgets and runner cleanup 20261005
+# v15 - poops: no auto-reload, cache-only (no online fallback) 20261010
 
 CACHE:
 index.html
